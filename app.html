@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COA — Condo Owners Alliance</title>
+<link rel="stylesheet" href="brand-fonts.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{font-family:'Inter',system-ui,sans-serif;margin:0;background:#f3f3ee;color:#1a1a2e}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+h1{font-size:24px;margin:0}h2{font-size:19px;margin:0 0 12px}
+.sub{color:#5b6b7a;margin:4px 0 24px;font-size:14px}
+.lang{font-size:13px}.lang button{background:none;border:1px solid #e8e5df;border-radius:6px;padding:4px 10px;cursor:pointer;margin-left:4px}
+.lang button.on{background:#0a1628;color:#fff;border-color:#0a1628}
+.btn{display:block;width:100%;text-align:left;background:#fff;border:1px solid #e8e5df;border-radius:12px;padding:18px;font-size:16px;cursor:pointer;margin-bottom:12px}
+.btn b{display:block;margin-bottom:4px}.btn span{color:#5b6b7a;font-size:13px}
+.btn:hover{border-color:#620709}
+.primary{background:#620709;color:#fff;border:none;border-radius:10px;padding:14px 22px;font-size:15px;cursor:pointer}
+.primary:disabled{background:#8a97a3}
+.card{background:#fff;border:1px solid #e8e5df;border-radius:12px;padding:20px;margin-bottom:16px}
+label{display:block;font-size:13px;color:#5b6b7a;margin:12px 0 4px}
+input,textarea{width:100%;padding:10px;border:1px solid #e8e5df;border-radius:8px;font-size:14px;font-family:inherit}
+textarea{min-height:110px}
+.back{background:none;border:none;color:#0a1628;cursor:pointer;font-size:14px;padding:0;margin-bottom:16px}
+.out{white-space:pre-wrap;font-size:14px;line-height:1.65;background:#fafbfc;border:1px solid #e5e9ee;border-radius:10px;padding:18px}
+.tag{display:inline-block;background:#e8e5df;color:#0a1628;font-size:11px;font-weight:bold;padding:3px 10px;border-radius:10px;margin-bottom:10px}
+.disc{font-size:11px;color:#620709;background:#f7ecec;border-radius:8px;padding:10px;margin-top:14px}
+.hide{display:none}.spin{color:#5b6b7a;font-size:14px}
+.route{background:#e8e5df;border-radius:10px;padding:16px;margin-top:12px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>COA — Condo Owners Alliance</h1><p class="sub" data-i18n="tagline">Helping Florida condo owners get answers, documents, and results.</p></div>
+  <div class="lang"><button id="lang-en" class="on" onclick="setLang('en')">EN</button><button id="lang-es" onclick="setLang('es')">ES</button></div>
+</header>
+
+<!-- HOME -->
+<div id="home">
+  <button class="btn" onclick="go('triage')"><b data-i18n="d1t">I have a problem with my condo association</b><span data-i18n="d1s">Records, finances, elections, voting/proxy, meetings, maintenance — or describe it in your own words</span></button>
+  <button class="btn" onclick="go('budget')"><b data-i18n="d2t">I received my condo budget and have questions — upload it here</b><span data-i18n="d2s">We explain it in plain language, check the math line by line, and show you what to ask</span></button>
+  <button class="btn" onclick="go('contract')"><b data-i18n="d3t">Request the contract between the association and the management company</b><span data-i18n="d3s">We generate the formal letter — it is your legal right (response due in 10 business days)</span></button>
+</div>
+
+<!-- TRIAGE -->
+<div id="triage" class="hide">
+  <button class="back" onclick="go('home')" data-i18n="back">← Back</button>
+  <h2 data-i18n="triage_h">What is happening?</h2>
+  <button class="btn" onclick="pick('records')"><b data-i18n="q1">I requested documents from my association and never received them</b><span data-i18n="q1s">Meeting minutes, financial records, contracts, insurance policies, reserve study</span></button>
+  <button class="btn" onclick="pick('records_new')"><b data-i18n="q2">I want to request association documents (first time)</b><span data-i18n="q2s">We generate the formal request with the legal deadline built in</span></button>
+  <button class="btn" onclick="pick('financial')"><b data-i18n="q3">I have concerns about the association's money</b><span data-i18n="q3s">Fees, assessments, missing financial reports, questionable spending</span></button>
+  <button class="btn" onclick="pick('election')"><b data-i18n="q4">Problem with an election, a vote, or a proxy</b><span data-i18n="q4s">Notice issues, ballot concerns, proxy pressure, recall of the board</span></button>
+  <button class="btn" onclick="pick('meetings')"><b data-i18n="q5">Problem with board meetings</b><span data-i18n="q5s">No notice given, not allowed to speak, denied access</span></button>
+  <button class="btn" onclick="pick('maintenance')"><b data-i18n="q6">Common areas are not being maintained or repaired</b><span data-i18n="q6s">We generate a formal repair notice with photo evidence</span></button>
+  <button class="btn" onclick="pick('assessment')"><b data-i18n="q7">I was hit with a special assessment or structural repair costs</b><span data-i18n="q7s">SIRS, milestone inspection, reserve funding — get the documents behind the numbers before you pay</span></button>
+  <div class="card">
+    <label data-i18n="other_l">None of these fit? Describe your situation in your own words (any language):</label>
+    <textarea id="freetext"></textarea>
+    <br><br><button class="primary" onclick="routeFree()" data-i18n="other_b">Find my path</button>
+    <p id="rload" class="spin hide" data-i18n="analyzing">Analyzing…</p>
+  </div>
+  <div id="routeres" class="hide route"></div>
+</div>
+
+<!-- BUDGET -->
+<div id="budget" class="hide">
+  <button class="back" onclick="go('home')" data-i18n="back">← Back</button>
+  <h2 data-i18n="b_h">Analyze my budget</h2>
+  <div class="card">
+    <label data-i18n="b_f1">Attach the budget PDF (cover letter, spreadsheet, reserve schedule, proxy — include everything you received)</label>
+    <input type="file" id="pdf1" accept="application/pdf">
+    <label data-i18n="b_f2">Optional: management contract PDF — enables budget-versus-contract cross-check</label>
+    <input type="file" id="pdf2" accept="application/pdf">
+    <label data-i18n="b_f3">Optional: your unit number — personalizes the report to what YOU pay</label>
+    <input id="unit">
+    <br><br><button class="primary" id="bbtn" onclick="analyzeBudget()" data-i18n="b_btn">Analyze my budget</button>
+    <p id="bload" class="spin hide" data-i18n="b_load">Reading your document line by line… this takes up to a minute.</p>
+  </div>
+  <div id="bres" class="hide">
+    <span class="tag" data-i18n="b_tag">YOUR REPORT</span>
+    <div class="out" id="bout"></div>
+    <div class="disc" data-i18n="disclaimer">This is an automated analysis and may contain errors. It is not a substitute for an accountant or attorney. It is based solely on the document you provided.</div>
+    <br><button class="btn" onclick="go('contract')"><b data-i18n="b_next">Request the management contract</b><span data-i18n="b_nexts">Several findings usually depend on this document — request it now</span></button>
+  </div>
+</div>
+
+<!-- CONTRACT LETTER -->
+<div id="contract" class="hide">
+  <button class="back" onclick="go('home')" data-i18n="back">← Back</button>
+  <h2 data-i18n="c_h">Official records request — management contract</h2>
+  <div class="card">
+    <label data-i18n="c_f1">Your full name</label><input id="cn">
+    <label data-i18n="c_f2">Your unit number</label><input id="cu">
+    <label data-i18n="c_f3">Association legal name (e.g. "Oceanview Condominium Association, Inc.")</label><input id="ca">
+    <label data-i18n="c_f4">Association / building address</label><input id="ce">
+    <br><br><button class="primary" onclick="makeLetter()" data-i18n="c_btn">Generate letter</button>
+  </div>
+  <div id="cres" class="hide">
+    <span class="tag" data-i18n="c_tag">LETTER READY — send by email with read receipt or certified mail</span>
+    <div class="out" id="cout"></div>
+    <br><button class="primary" onclick="copyLetter()" data-i18n="c_copy">Copy letter</button>
+    <div class="disc" data-i18n="c_note">Keep your proof of delivery. The association has 10 business days to respond (s. 718.111(12), Florida Statutes). If they do not respond, the law presumes you were damaged — minimum $50 per day. COA tracks this deadline for you.</div>
+  </div>
+</div>
+
+<!-- GENERIC RECORDS LETTER -->
+<div id="records" class="hide">
+  <button class="back" onclick="go('triage')" data-i18n="back">← Back</button>
+  <h2 data-i18n="r_h">Official records request</h2>
+  <div class="card">
+    <label data-i18n="c_f1">Your full name</label><input id="rn">
+    <label data-i18n="c_f2">Your unit number</label><input id="ru">
+    <label data-i18n="c_f3">Association legal name</label><input id="ra">
+    <label data-i18n="c_f4">Association / building address</label><input id="re">
+    <label data-i18n="r_f5">Which records do you need? (check all that apply)</label>
+    <div id="reclist"></div>
+    <br><button class="primary" onclick="makeRecordsLetter()" data-i18n="c_btn">Generate letter</button>
+  </div>
+  <div id="rres" class="hide">
+    <span class="tag" data-i18n="c_tag">LETTER READY — send by email with read receipt or certified mail</span>
+    <div class="out" id="rout"></div>
+    <br><button class="primary" onclick="copyRecords()" data-i18n="c_copy">Copy letter</button>
+    <div class="disc" data-i18n="c_note">Keep your proof of delivery. The association has 10 business days to respond (s. 718.111(12), Florida Statutes). If they do not respond, the law presumes you were damaged — minimum $50 per day. COA tracks this deadline for you.</div>
+  </div>
+</div>
+
+</div>
+<script>
+/* ===== i18n ===== */
+const I = {
+en:{tagline:"Helping Florida condo owners get answers, documents, and results.",
+d1t:"I have a problem with my condo association",d1s:"Records, finances, elections, voting/proxy, meetings, maintenance — or describe it in your own words",
+d2t:"I received my condo budget and have questions — upload it here",d2s:"We explain it in plain language, check the math line by line, and show you what to ask",
+d3t:"Request the contract between the association and the management company",d3s:"We generate the formal letter — it is your legal right (response due in 10 business days)",
+back:"← Back",triage_h:"What is happening?",
+q1:"I requested documents from my association and never received them",q1s:"Meeting minutes, financial records, contracts, insurance policies, reserve study",
+q2:"I want to request association documents (first time)",q2s:"We generate the formal request with the legal deadline built in",
+q3:"I have concerns about the association's money",q3s:"Fees, assessments, missing financial reports, questionable spending",
+q4:"Problem with an election, a vote, or a proxy",q4s:"Notice issues, ballot concerns, proxy pressure, recall of the board",
+q5:"Problem with board meetings",q5s:"No notice given, not allowed to speak, denied access",
+q6:"Common areas are not being maintained or repaired",q6s:"We generate a formal repair notice with photo evidence",
+q7:"I was hit with a special assessment or structural repair costs",q7s:"SIRS, milestone inspection, reserve funding — get the documents behind the numbers before you pay",
+other_l:"None of these fit? Describe your situation in your own words (any language):",other_b:"Find my path",analyzing:"Analyzing…",refused:"The analysis could not be completed for this document. Please try again or contact COA.",
+b_h:"Analyze my budget",b_f1:"Attach the budget PDF (cover letter, spreadsheet, reserve schedule, proxy — include everything you received)",
+b_f2:"Optional: management contract PDF — enables budget-versus-contract cross-check",b_f3:"Optional: your unit number — personalizes the report to what YOU pay",
+b_btn:"Analyze my budget",b_load:"Reading your document line by line… this takes up to a minute.",b_tag:"YOUR REPORT",
+disclaimer:"This is an automated analysis and may contain errors. It is not a substitute for an accountant or attorney. It is based solely on the document you provided.",
+b_next:"Request the management contract",b_nexts:"Several findings usually depend on this document — request it now",
+c_h:"Official records request — management contract",c_f1:"Your full name",c_f2:"Your unit number",c_f3:'Association legal name (e.g. "Oceanview Condominium Association, Inc.")',c_f4:"Association / building address",
+c_btn:"Generate letter",c_tag:"LETTER READY — send by email with read receipt or certified mail",c_copy:"Copy letter",
+c_note:"Keep your proof of delivery. The association has 10 business days to respond (s. 718.111(12), Florida Statutes). If they do not respond, the law presumes you were damaged — minimum $50 per day. COA tracks this deadline for you.",
+r_h:"Official records request",r_f5:"Which records do you need? (check all that apply)",
+copied:"Letter copied to clipboard.",need_pdf:"Please attach the budget PDF.",need_desc:"Please describe your situation first.",
+too_big:"The attached PDFs exceed 3 MB combined. Please split the budget into smaller files or compress them (e.g. remove photo pages) and try again.",
+rec_minutes:"Meeting minutes (last 12 months)",rec_financial:"Annual financial report and monthly statements",rec_budget:"Current adopted budget",rec_reserve:"Most recent reserve study / SIRS",rec_milestone:"Milestone structural inspection report",rec_invoices:"Invoices, receipts and bank statements (last 12 months)",rec_insurance:"Current insurance policies",rec_contracts:"Service contracts (all current vendors)",rec_mgmt:"Management services agreement",rec_election:"Election materials, ballots and proxies (most recent election)",
+route_records:"Your situation matches a RECORDS REQUEST. The association is legally required to provide official records within 10 working days of a written request. Next step: generate the formal request letter below.",
+route_assessment:"Your situation matches a SPECIAL ASSESSMENT / structural repair issue — the #1 complaint of Florida condo owners since the 2022 safety law. Before paying or fighting, get the documents the numbers are built on: the structural integrity reserve study (SIRS), the milestone inspection report, and the reserve schedule — all official records the association must provide in 10 working days. Next step: generate the records request; when you receive the budget or assessment notice, upload it for a line-by-line analysis.",
+route_financial:"Your situation matches a FINANCIAL CONCERN. The strongest path is to first obtain the financial documents (a written records request the association must answer in 10 business days), then escalate with evidence. Next step: generate the records request letter.",
+route_election:"Your situation matches an ELECTION / VOTING issue. Florida law sets strict notice deadlines and procedures for condo votes, and the state can appoint an Election Monitor. Next step: COA documents each irregularity with dates and prepares your complaint package.",
+route_meetings:"Your situation matches a BOARD MEETINGS issue. Owners have the right to notice, to attend, and to speak. One incident is a record; repeated incidents become a documented pattern. Next step: register the occurrence with date and evidence.",
+route_maintenance:"Your situation matches a MAINTENANCE issue. Next step: a formal repair notice to the association with photos and a response deadline.",
+route_budget:"Your situation matches a BUDGET question. Use the budget analysis tool on the home screen — upload the document and receive a line-by-line plain-language report.",
+route_referral:"Based on your description, this matter may fall outside what the association or the state condo agency can resolve (for example criminal conduct or private disputes). COA will review it and point you to the right venue. You can still document everything here so nothing is lost."},
+es:{tagline:"Ayudamos a los propietarios de condominios de Florida a obtener respuestas, documentos y resultados.",
+d1t:"Tengo un problema con la asociación de mi condominio",d1s:"Documentos, finanzas, elecciones, votación/proxy, reuniones, mantenimiento — o descríbalo con sus propias palabras",
+d2t:"Recibí el presupuesto de mi condominio y tengo preguntas — súbalo aquí",d2s:"Se lo explicamos en lenguaje claro, verificamos las cuentas línea por línea y le mostramos qué preguntar",
+d3t:"Solicitar el contrato entre la asociación y la administradora",d3s:"Generamos la carta formal — es su derecho legal (respuesta en 10 días hábiles)",
+back:"← Volver",triage_h:"¿Qué está pasando?",
+q1:"Pedí documentos a mi asociación y nunca los recibí",q1s:"Actas, registros financieros, contratos, pólizas de seguro, estudio de reservas",
+q2:"Quiero solicitar documentos de la asociación (primera vez)",q2s:"Generamos la solicitud formal con el plazo legal incluido",
+q3:"Tengo dudas sobre el dinero de la asociación",q3s:"Cuotas, derramas, informes financieros faltantes, gastos cuestionables",
+q4:"Problema con una elección, votación o proxy",q4s:"Problemas de convocatoria, boletas, presión con proxies, destitución de la junta",
+q5:"Problema con las reuniones de la junta",q5s:"Sin aviso, no me dejan hablar, acceso negado",
+q6:"Las áreas comunes no reciben mantenimiento o reparación",q6s:"Generamos una notificación formal de reparación con evidencia fotográfica",
+q7:"Me impusieron una derrama (special assessment) o costos de reparación estructural",q7s:"SIRS, inspección milestone, reservas — obtenga los documentos detrás de los números antes de pagar",
+other_l:"¿Ninguna aplica? Describa su situación con sus propias palabras (cualquier idioma):",other_b:"Encontrar mi camino",analyzing:"Analizando…",refused:"El análisis no pudo completarse para este documento. Intente de nuevo o contacte a COA.",
+b_h:"Analizar mi presupuesto",b_f1:"Adjunte el PDF del presupuesto (carta, planilla, reservas, proxy — incluya todo lo que recibió)",
+b_f2:"Opcional: PDF del contrato de la administradora — permite el cruce presupuesto-contrato",b_f3:"Opcional: su número de unidad — personaliza el informe con lo que USTED paga",
+b_btn:"Analizar mi presupuesto",b_load:"Leyendo su documento línea por línea… puede tardar hasta un minuto.",b_tag:"SU INFORME",
+disclaimer:"Este es un análisis automatizado y puede contener errores. No sustituye a un contador o abogado. Se basa únicamente en el documento que usted proporcionó.",
+b_next:"Solicitar el contrato de la administradora",b_nexts:"Varios hallazgos suelen depender de este documento — solicítelo ahora",
+c_h:"Solicitud de registros oficiales — contrato de administración",c_f1:"Su nombre completo",c_f2:"Su número de unidad",c_f3:'Nombre legal de la asociación (ej. "Oceanview Condominium Association, Inc.")',c_f4:"Dirección de la asociación / edificio",
+c_btn:"Generar carta",c_tag:"CARTA LISTA — envíela por correo electrónico con acuse de recibo o correo certificado",c_copy:"Copiar carta",
+c_note:"Guarde su comprobante de entrega. La asociación tiene 10 días hábiles para responder (s. 718.111(12), Florida Statutes). Si no responde, la ley presume daños — mínimo $50 por día. COA supervisa este plazo por usted.",
+r_h:"Solicitud de registros oficiales",r_f5:"¿Qué registros necesita? (marque todos los que apliquen)",
+copied:"Carta copiada al portapapeles.",need_pdf:"Adjunte el PDF del presupuesto.",need_desc:"Primero describa su situación.",
+too_big:"Los PDF adjuntos superan 3 MB en total. Divida el presupuesto en archivos más pequeños o comprímalos (p. ej. quite páginas de fotos) e intente de nuevo.",
+rec_minutes:"Actas de reuniones (últimos 12 meses)",rec_financial:"Informe financiero anual y estados mensuales",rec_budget:"Presupuesto vigente aprobado",rec_reserve:"Estudio de reservas más reciente / SIRS",rec_milestone:"Informe de la inspección estructural milestone",rec_invoices:"Facturas, recibos y estados bancarios (últimos 12 meses)",rec_insurance:"Pólizas de seguro vigentes",rec_contracts:"Contratos de servicio (todos los proveedores actuales)",rec_mgmt:"Contrato de servicios de administración",rec_election:"Materiales de elección, boletas y proxies (última elección)",
+route_records:"Su situación corresponde a una SOLICITUD DE REGISTROS. La asociación está legalmente obligada a entregar los registros oficiales dentro de 10 días hábiles tras una solicitud escrita. Siguiente paso: genere la carta formal abajo.",
+route_assessment:"Su situación corresponde a una DERRAMA / reparación estructural — la queja número 1 de los propietarios de condominios de Florida desde la ley de seguridad de 2022. Antes de pagar o pelear, obtenga los documentos detrás de los números: el estudio de reservas estructurales (SIRS), el informe de la inspección milestone y el calendario de reservas — todos registros oficiales que la asociación debe entregar en 10 días hábiles. Siguiente paso: genere la solicitud de registros; cuando reciba el presupuesto o el aviso de derrama, súbalo para un análisis línea por línea.",
+route_financial:"Su situación corresponde a una PREOCUPACIÓN FINANCIERA. El camino más sólido es obtener primero los documentos financieros (solicitud escrita que la asociación debe responder en 10 días hábiles) y luego escalar con evidencia. Siguiente paso: genere la carta de solicitud.",
+route_election:"Su situación corresponde a un problema de ELECCIÓN / VOTACIÓN. La ley de Florida fija plazos y procedimientos estrictos, y el estado puede designar un Monitor de Elección. Siguiente paso: COA documenta cada irregularidad con fechas y prepara su paquete de queja.",
+route_meetings:"Su situación corresponde a un problema de REUNIONES. Los propietarios tienen derecho a aviso, a asistir y a hablar. Un incidente es un registro; incidentes repetidos son un patrón documentado. Siguiente paso: registre la ocurrencia con fecha y evidencia.",
+route_maintenance:"Su situación corresponde a un problema de MANTENIMIENTO. Siguiente paso: una notificación formal de reparación con fotos y plazo de respuesta.",
+route_budget:"Su situación corresponde a una pregunta de PRESUPUESTO. Use la herramienta de análisis en la pantalla inicial — suba el documento y reciba un informe línea por línea en lenguaje claro.",
+route_referral:"Según su descripción, este asunto puede estar fuera de lo que la asociación o la agencia estatal pueden resolver (por ejemplo conducta criminal o disputas privadas). COA lo revisará y le indicará la vía correcta. Aun así puede documentar todo aquí."}
+};
+let L='en';
+function setLang(l){L=l;document.getElementById('lang-en').classList.toggle('on',l==='en');document.getElementById('lang-es').classList.toggle('on',l==='es');
+document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(I[L][k])el.textContent=I[L][k];});buildRecList();}
+function t(k){return I[L][k]||I.en[k]||k;}
+
+/* ===== navigation ===== */
+function go(id){['home','triage','budget','contract','records'].forEach(x=>document.getElementById(x).classList.add('hide'));document.getElementById(id).classList.remove('hide');window.scrollTo(0,0);}
+
+/* ===== triage: predefined ===== */
+function pick(kind){
+  if(kind==='records'||kind==='records_new'||kind==='financial'){go('records');return;}
+  if(kind==='assessment'){showRoute(t('route_assessment'));setTimeout(()=>go('records'),3500);return;}
+  const map={election:'route_election',meetings:'route_meetings',maintenance:'route_maintenance'};
+  showRoute(t(map[kind]));
+}
+function showRoute(msg){const r=document.getElementById('routeres');r.textContent=msg;r.classList.remove('hide');r.scrollIntoView({behavior:'smooth'});}
+
+/* ===== triage: free text via AI ===== */
+async function routeFree(){
+  const txt=document.getElementById('freetext').value.trim();
+  if(!txt){alert(t('need_desc'));return;}
+  document.getElementById('rload').classList.remove('hide');
+  const prompt=`You are the intake classifier for COA (Condo Owners Alliance), a service for Florida condominium owners. Classify the owner's description into EXACTLY ONE of these categories and respond ONLY with the category word, nothing else:
+RECORDS (requesting or being denied association documents)
+ASSESSMENT (special assessments, structural repair costs, SIRS / milestone inspection, reserve funding shock)
+FINANCIAL (fees, budgets already adopted, missing financial reports, suspected misuse of funds)
+ELECTION (elections, votes, proxies, recalls, ballots)
+MEETINGS (board meeting notice, access, right to speak)
+MAINTENANCE (common-area repairs and upkeep)
+BUDGET (owner received a proposed budget and wants it explained)
+REFERRAL (criminal conduct, neighbor-vs-neighbor disputes, landlord-tenant issues, or anything no condo agency handles)
+
+Owner's description (may be in any language): ${txt}`;
+  try{
+    const out=await callAI([{type:'text',text:prompt}]);
+    const c=(out||'').toUpperCase();
+    let key='route_referral';
+    if(c.includes('RECORDS'))key='route_records';
+    else if(c.includes('ASSESSMENT'))key='route_assessment';
+    else if(c.includes('FINANCIAL'))key='route_financial';
+    else if(c.includes('ELECTION'))key='route_election';
+    else if(c.includes('MEETINGS'))key='route_meetings';
+    else if(c.includes('MAINTENANCE'))key='route_maintenance';
+    else if(c.includes('BUDGET'))key='route_budget';
+    showRoute(t(key));
+    if(key==='route_records'||key==='route_financial'||key==='route_assessment'){setTimeout(()=>go('records'),3500);}
+    if(key==='route_budget'){setTimeout(()=>go('budget'),2500);}
+  }catch(e){showRoute('Error: '+e.message);}
+  document.getElementById('rload').classList.add('hide');
+}
+
+/* ===== budget analysis ===== */
+function toB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});}
+
+async function analyzeBudget(){
+  const f1=document.getElementById('pdf1').files[0],f2=document.getElementById('pdf2').files[0];
+  if(!f1){alert(t('need_pdf'));return;}
+  // Vercel limita o corpo da requisição a ~4,5 MB; base64 infla ~33%, então o total dos PDFs precisa ficar < ~3 MB (igual à mensagem too_big)
+  const totalBytes=(f1.size||0)+((f2&&f2.size)||0);
+  if(totalBytes>3000000){alert(t('too_big'));return;}
+  document.getElementById('bload').classList.remove('hide');document.getElementById('bres').classList.add('hide');document.getElementById('bbtn').disabled=true;
+  const unit=document.getElementById('unit').value.trim();
+  let content;
+  try{
+    content=[{type:'document',source:{type:'base64',media_type:'application/pdf',data:await toB64(f1)}}];
+    if(f2)content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:await toB64(f2)}});
+  }catch(e){
+    document.getElementById('bload').classList.add('hide');document.getElementById('bbtn').disabled=false;
+    alert(t('need_pdf'));return;
+  }
+
+  let prompt=`You are the COA (Condo Owners Alliance) budget analyzer for Florida condominium owners. Analyze ONLY the attached document. Every building is its own analysis — never assume, never invent a number, never reuse knowledge of any other building.
+
+MANDATORY VALIDATION FIRST (report failures explicitly):
+V1. Re-add every section: do the line items sum to the stated section total (tolerance $2)? Recompute; do not trust printed totals.
+V2. Does Total Revenue minus Total Expenses equal the stated net (tolerance $2)?
+V3. Does the same figure appear consistently everywhere it is cited (cover letter vs. spreadsheet vs. reserve schedule)? Any internal contradiction is a finding.
+V4. If the document is marked DRAFT or unapproved, say so.
+If a section fails validation, flag it and do not build further math on unvalidated numbers.
+
+THEN, LINE BY LINE where prior-year columns exist, compute variance = (current − prior) and percent = variance/prior×100. Show your arithmetic for every figure you cite. Flag: any line changing ±25% or more AND at least $2,000; one-time revenue (prior-year surplus, reimbursements) covering recurring expenses, with the projected gap next year; reserve funding below the fully-funded level, with the per-unit annual shortfall if unit count is known; per reserve item where data exists: projected balance at end of useful life = current balance + (remaining years × annual contribution); compare to replacement cost and state the shortfall; maintenance-contract lines falling ≥40% while the matching repair line rises ≥40%; generic lines (Miscellaneous, Contingency, Special Projects, Other) that are the largest item of their section or ≥10% of it; unit-based revenue lines (valet, screening, late fees, pet fees, key/fob income) that are zero or implausibly small for the building size — state the implied volume logic without assuming any price; any expense line named Deficit or Prior Year Loss — require origin and payoff plan; services with large cost and negligible offsetting revenue; every claim in the cover letter tested against the spreadsheet (e.g., "no increase", "complimentary", stated percentages — verify the math).
+
+OUTPUT FORMAT — plain ${L==='es'?'Spanish':'English'}, short sentences, written for any owner regardless of age or financial background. Translate every large figure into dollars per unit per month when unit count is available. Structure:
+1) "What you will pay" — the owner's assessment change${unit?` (personalize for unit ${unit} using the fee schedule if present; show prior vs. new and the difference)`:''}.
+2) "Where the money goes" — the 5 largest expense blocks with per-unit-per-month translation.
+3) "Findings" — up to 7, most important first. For each: (a) the fact with the exact arithmetic shown, (b) one short "What many owners don't know" explanation, (c) a ready-to-ask question for the budget meeting.
+4) "Documents worth requesting" — list which official records these findings point to (reserve study, management contract, specific vendor contracts, detailed ledger of a line).
+Every dollar figure you output MUST appear in the document or be an arithmetic result of figures that do — show the calculation. If any part of the document is illegible, say which part and lower your confidence explicitly.`;
+  if(f2)prompt+=`
+
+A MANAGEMENT CONTRACT is also attached. Extract: monthly fee and annual escalators; payroll markup percentages by staff category; per-event fees (late letters, collections, NSF, hourly charges); affiliated vendors disclosed under s. 718.3025(1)(f); termination and employee-hiring restriction clauses. Cross-check against the budget: estimate the embedded management margin inside payroll lines (payroll × markup ÷ (1+markup)) per category, and flag budget vendor lines that match disclosed affiliates.`;
+  prompt+=`
+
+End with exactly this line: "${L==='es'?'⚠️ Este análisis es automatizado y puede contener errores. No sustituye a un contador o abogado.':'⚠️ This analysis is automated and may contain errors. It is not a substitute for an accountant or attorney.'}"`;
+  content.push({type:'text',text:prompt});
+  try{
+    const out=await callAI(content);
+    document.getElementById('bout').textContent=out||'Analysis failed. Please try again.';
+    document.getElementById('bres').classList.remove('hide');
+  }catch(e){document.getElementById('bout').textContent='Error: '+e.message;document.getElementById('bres').classList.remove('hide');}
+  document.getElementById('bload').classList.add('hide');document.getElementById('bbtn').disabled=false;
+}
+
+/* ===== AI transport: /api/analyze (produção e dev server usam o mesmo caminho) ===== */
+async function callAI(content){
+  const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
+  if(d.refusal)throw new Error(t('refused'));
+  if(!d.text)throw new Error('Empty response');
+  return d.text;
+}
+
+/* ===== letters (always English — legal documents) ===== */
+const RECS=['rec_minutes','rec_financial','rec_budget','rec_reserve','rec_milestone','rec_invoices','rec_insurance','rec_contracts','rec_mgmt','rec_election'];
+const REC_EN={rec_minutes:"Minutes of all board and membership meetings for the past 12 months",
+rec_financial:"The most recent annual financial report and the monthly financial statements for the past 12 months",
+rec_budget:"The current adopted annual budget of the Association",
+rec_reserve:"The most recent structural integrity reserve study (SIRS) and any other reserve study of the Association",
+rec_milestone:"The most recent milestone inspection report prepared under Section 553.899, Florida Statutes, including all phase 1 and phase 2 reports",
+rec_invoices:"All invoices, receipts, and bank statements of the Association for the past 12 months",
+rec_insurance:"All current insurance policies of the Association",
+rec_contracts:"All current contracts for services to the Association, including any bids received in the past year",
+rec_mgmt:"The current management services agreement, including all exhibits, addenda, fee schedules and payroll markup schedules",
+rec_election:"All ballots, sign-in sheets, voting proxies and election materials from the most recent election or membership vote"};
+function buildRecList(){const d=document.getElementById('reclist');d.innerHTML='';RECS.forEach(k=>{d.innerHTML+=`<label style="display:flex;gap:8px;align-items:flex-start;font-size:14px;color:#1c2733;margin:6px 0"><input type="checkbox" value="${k}" style="width:auto;margin-top:3px">${t(k)}</label>`;});}
+function letterHead(name,unit,assoc,addr){
+  const d=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  return `${d}\n\nTO: Board of Directors / Management\n${assoc}\n${addr}\n\nRE: OFFICIAL RECORDS INSPECTION REQUEST — Section 718.111(12), Florida Statutes\n\nDear Board of Directors,\n\nI, ${name}, owner of unit ${unit}, hereby submit this written request to inspect and obtain copies of the following official records of the Association, pursuant to Section 718.111(12), Florida Statutes:\n\n`;
+}
+function letterFoot(name,unit){
+  return `\nAs provided by law, these records must be made available for inspection within ten (10) working days of receipt of this request. Failure to comply creates a rebuttable presumption that the Association willfully failed to comply, with minimum damages of $50 per calendar day (up to 10 days).\n\nPursuant to Section 718.111(12)(c), Florida Statutes, please provide, simultaneously with your response, the written checklist of all records made available for inspection and copying, identifying any requested records that were not made available.\n\nPlease contact me to schedule the inspection or to provide copies (I agree to pay reasonable copying costs as permitted by statute).\n\nSincerely,\n\n${name}\nUnit ${unit}\nSent via trackable delivery — please confirm receipt.`;
+}
+function makeLetter(){
+  const n=document.getElementById('cn').value||'[NAME]',u=document.getElementById('cu').value||'[UNIT]',a=document.getElementById('ca').value||'[ASSOCIATION]',e=document.getElementById('ce').value||'[ADDRESS]';
+  const items=`1. The current management services agreement between the Association and its management company, including all exhibits, addenda and amendments;\n2. The current schedule of fees, cost reimbursements and payroll markup percentages charged by the management company;\n3. Any disclosure of affiliated vendors pursuant to Section 718.3025(1)(f), Florida Statutes.\n`;
+  document.getElementById('cout').textContent=letterHead(n,u,a,e)+items+letterFoot(n,u);
+  document.getElementById('cres').classList.remove('hide');
+}
+function makeRecordsLetter(){
+  const n=document.getElementById('rn').value||'[NAME]',u=document.getElementById('ru').value||'[UNIT]',a=document.getElementById('ra').value||'[ASSOCIATION]',e=document.getElementById('re').value||'[ADDRESS]';
+  const checked=[...document.querySelectorAll('#reclist input:checked')].map(c=>REC_EN[c.value]);
+  if(checked.length===0){checked.push(REC_EN.rec_minutes);}
+  const items=checked.map((x,i)=>`${i+1}. ${x};`).join('\n')+'\n';
+  document.getElementById('rout').textContent=letterHead(n,u,a,e)+items+letterFoot(n,u);
+  document.getElementById('rres').classList.remove('hide');
+}
+function copyLetter(){navigator.clipboard.writeText(document.getElementById('cout').textContent);alert(t('copied'));}
+function copyRecords(){navigator.clipboard.writeText(document.getElementById('rout').textContent);alert(t('copied'));}
+buildRecList();
+</script>
+</body>
+</html>

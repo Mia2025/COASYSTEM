@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Condo Owners Alliance — Know your rights. Get your documents. Get results.</title>
+<link rel="canonical" href="https://www.condoownersalliance.com/">
+<meta property="og:title" content="Condo Owners Alliance">
+<meta property="og:description" content="COA helps Florida condominium owners understand their budgets, request official records, and hold associations accountable.">
+<meta property="og:url" content="https://www.condoownersalliance.com/">
+<meta name="description" content="COA helps Florida condominium owners understand their budgets, request official records, and hold associations accountable — with the law on your side.">
+<link rel="stylesheet" href="brand-fonts.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1628;--navy2:#0d1f3c;--gold:#620709;--goldt:#7a1618;--paper:#f3f3ee;--ink:#1a1a2e;--muted:#6b7280;--line:#e8e5df}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#fff}
+.sans{font-family:'Inter',sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+/* NAV */
+nav{background:var(--navy);color:#fff;position:sticky;top:0;z-index:10}
+nav .wrap{display:flex;justify-content:space-between;align-items:center;height:60px}
+.logo{font-family:'TG',Arial,sans-serif;font-weight:700;font-size:18px;letter-spacing:1px}
+.logo span{color:var(--goldt)}
+nav a{color:#fff;text-decoration:none;font-family:'Inter',sans-serif;font-size:14px;margin-left:22px}
+nav a.cta{background:var(--gold);color:#fff;padding:9px 18px;border-radius:8px;font-weight:600}
+.lang{margin-left:22px}
+.lang button{background:none;border:1px solid #ffffff55;color:#fff;border-radius:6px;padding:3px 9px;cursor:pointer;font-size:12px;margin-left:4px}
+.lang button.on{background:#fff;color:var(--navy)}
+/* HERO */
+.hero{background:linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;padding:88px 0 72px}
+.hero h1{font-family:'TG',Arial,sans-serif;font-weight:700;font-size:clamp(32px,5vw,52px);line-height:1.12;max-width:760px}
+.hero h1 em{font-style:normal;color:#fff;border-bottom:4px solid var(--goldt)}
+.hero p{font-family:'Inter',sans-serif;font-size:18px;color:#cfd8e3;max-width:640px;margin:22px 0 34px;line-height:1.6}
+.btnrow{display:flex;gap:14px;flex-wrap:wrap}
+.btn{font-family:'Inter',sans-serif;text-decoration:none;border-radius:10px;padding:15px 26px;font-size:16px;font-weight:bold;display:inline-block}
+.btn.gold{background:var(--gold);color:#fff}
+.btn.ghost{border:1px solid #ffffff66;color:#fff}
+/* STATS BAND */
+.band{background:var(--paper);border-bottom:1px solid var(--line)}
+.band .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;padding:34px 24px}
+.stat{text-align:center}
+.stat b{display:block;font-family:'TG',Arial,sans-serif;font-size:34px;color:var(--navy)}
+.stat span{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted)}
+.band .src{grid-column:1/-1;text-align:center;font-family:'Inter',sans-serif;font-size:11px;color:#9aa6b2}
+/* SECTIONS */
+section{padding:72px 0}
+h2{font-family:'TG',Arial,sans-serif;font-weight:700;font-size:32px;margin-bottom:8px}
+.lead{font-family:'Inter',sans-serif;color:var(--muted);font-size:16px;max-width:680px;margin-bottom:40px;line-height:1.6}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.card{border:1px solid var(--line);border-radius:14px;padding:26px;background:#fff}
+.card .num{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:2px;margin-bottom:10px}
+.card h3{font-family:'TG',Arial,sans-serif;font-weight:700;font-size:20px;margin-bottom:10px}
+.card p{font-family:'Inter',sans-serif;font-size:14px;color:var(--muted);line-height:1.65}
+/* HOW */
+.how{background:var(--paper)}
+.steps{counter-reset:s}
+.step{display:flex;gap:20px;padding:22px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border:none}
+.step::before{counter-increment:s;content:counter(s);font-family:'Inter',sans-serif;font-weight:bold;background:var(--navy);color:#fff;min-width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.step div b{display:block;font-family:'TG',Arial,sans-serif;font-size:18px;margin-bottom:4px}
+.step div span{font-family:'Inter',sans-serif;font-size:14px;color:var(--muted);line-height:1.6}
+/* LAW */
+.law{background:var(--navy);color:#fff}
+.law h2{color:#fff}
+.law .lead{color:#cfd8e3}
+.law blockquote{border-left:3px solid var(--goldt);padding:6px 0 6px 22px;font-size:19px;line-height:1.6;max-width:760px;font-style:italic;color:#e8edf3}
+.law cite{display:block;font-family:'Inter',sans-serif;font-size:13px;color:#c99a9b;margin-top:12px;font-style:normal}
+/* CTA */
+.cta2{text-align:center}
+.cta2 h2{font-size:36px}
+/* FOOTER */
+footer{background:#0d1b2c;color:#8fa0b3;font-family:'Inter',sans-serif;font-size:12px;padding:36px 0;line-height:1.8}
+footer a{color:#c9d4e0}
+@media print{nav,.btnrow{display:none}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="logo">CONDO OWNERS <span>ALLIANCE</span></div>
+  <div style="display:flex;align-items:center">
+    <a href="#how" data-i18n="n1">How it works</a>
+    <a href="#features" data-i18n="n2">What we do</a>
+    <a href="app.html" class="cta" data-i18n="n3">Start free</a>
+    <span class="lang"><button id="len" class="on" onclick="setLang('en')">EN</button><button id="les" onclick="setLang('es')">ES</button></span>
+  </div>
+</div></nav>
+
+<div class="hero"><div class="wrap">
+  <h1 data-i18n="h1">Your condo association works for <em>you</em>. We help you make sure of it.</h1>
+  <p data-i18n="hp">COA helps Florida condominium owners understand confusing budgets, obtain the official records the law guarantees them, and act when the association does not respond — step by step, with every deadline tracked.</p>
+  <div class="btnrow">
+    <a class="btn gold" href="app.html" data-i18n="cta1">Analyze my budget — free</a>
+    <a class="btn ghost" href="app.html" data-i18n="cta2">I have a problem with my association</a>
+  </div>
+</div></div>
+
+<div class="band"><div class="wrap">
+  <div class="stat"><b>4,317</b><span data-i18n="s1">alleged violations reported by Florida condo residents to the State in one year</span></div>
+  <div class="stat"><b>28.9%</b><span data-i18n="s2">concern access to the association's official records — the largest single category</span></div>
+  <div class="stat"><b>25.2%</b><span data-i18n="s3">involve the association's financial management</span></div>
+  <div class="stat"><b>10 <span style="font-size:16px" data-i18n="s4d">days</span></b><span data-i18n="s4">the legal deadline an association has to answer a written records request</span></div>
+  <div class="src" data-i18n="src">Source: Florida DBPR, Division of Condominiums, Timeshares & Mobile Homes — Annual Report FY 2023-24 · s. 718.111(12), Florida Statutes</div>
+</div></div>
+
+<section id="features"><div class="wrap">
+  <h2 data-i18n="f_h">Three things we do for you</h2>
+  <p class="lead" data-i18n="f_l">Everything COA generates is something the law already entitles you to. We make it correct, formal, documented — and we track what happens next.</p>
+  <div class="grid3">
+    <div class="card"><div class="num" data-i18n="f1n">BUDGET REVIEW</div><h3 data-i18n="f1t">Understand your budget before you accept it</h3><p data-i18n="f1p">Upload the budget your association sent you. We verify the math line by line, translate it into plain language, flag what deserves attention, and hand you the exact questions to ask at the budget meeting.</p></div>
+    <div class="card"><div class="num" data-i18n="f2n">OFFICIAL RECORDS</div><h3 data-i18n="f2t">Get the documents the law guarantees you</h3><p data-i18n="f2p">Meeting minutes, financial statements, the reserve study, the management contract. We generate the formal written request, send it the trackable way, and count the 10-business-day legal deadline for you.</p></div>
+    <div class="card"><div class="num" data-i18n="f3n">ESCALATION</div><h3 data-i18n="f3t">Act when they don't respond</h3><p data-i18n="f3p">If the deadline passes in silence, the law presumes you were harmed. We prepare the final notice and, if needed, a complete state complaint package — every date and document already attached.</p></div>
+  </div>
+</div></section>
+
+<section class="how" id="how"><div class="wrap">
+  <h2 data-i18n="hw_h">How it works</h2>
+  <p class="lead" data-i18n="hw_l">One case, one path, one outcome. You decide only three times — everything else is handled.</p>
+  <div class="steps">
+    <div class="step"><div><b data-i18n="st1">Tell us what is happening</b><span data-i18n="st1s">Pick from the common situations or describe yours in your own words, in any language — we route it to the right path.</span></div></div>
+    <div class="step"><div><b data-i18n="st2">We generate the correct document</b><span data-i18n="st2s">Formal, in English, citing the right statute, with the legal deadline built in. You review and approve — you never write a legal letter yourself.</span></div></div>
+    <div class="step"><div><b data-i18n="st3">We track the deadline</b><span data-i18n="st3s">You receive at most three notifications: they answered, two days left, or deadline missed. No noise.</span></div></div>
+    <div class="step"><div><b data-i18n="st4">If ignored, we escalate together</b><span data-i18n="st4s">Final notice, state complaint package, or direct COA intervention with the management company — your full documented file in hand.</span></div></div>
+  </div>
+</div></section>
+
+<section class="law"><div class="wrap">
+  <h2 data-i18n="lw_h">The law is specific — and it is on your side</h2>
+  <p class="lead" data-i18n="lw_l">Florida's Condominium Act gives every owner the right to inspect the association's official records within 10 business days of a written request.</p>
+  <blockquote data-i18n="lw_q">"The failure of an association to provide the records within 10 working days after receipt of a written request creates a rebuttable presumption that the association willfully failed to comply… minimum damages of $50 per calendar day (up to 10 days)."
+  <cite>— Section 718.111(12), Florida Statutes (summary)</cite></blockquote>
+</div></section>
+
+<section class="cta2"><div class="wrap">
+  <h2 data-i18n="c2h">Start with the document in your hands</h2>
+  <p class="lead" style="margin:14px auto 30px" data-i18n="c2l">Received this year's budget? Upload it now and read it the way it should have been written for you.</p>
+  <a class="btn gold" href="app.html" style="background:var(--gold);color:#fff" data-i18n="c2b">Open COA — free</a>
+</div></section>
+
+<footer><div class="wrap">
+  <b style="color:#fff">Condo Owners Alliance</b><br>
+  <span data-i18n="ft1">COA provides document preparation, education, and case tracking for condominium owners. COA is not a law firm and does not provide legal advice. Budget analyses are automated, may contain errors, and are not a substitute for an accountant or attorney. Statistics shown are from the Florida DBPR CTMH Annual Report FY 2023-24.</span><br><br>
+  <a href="app.html" data-i18n="n3">Start free</a>
+</div></footer>
+
+<script>
+const I={en:{},es:{
+n1:"Cómo funciona",n2:"Qué hacemos",n3:"Comenzar gratis",
+h1:"Su asociación de condominio trabaja para usted. Le ayudamos a asegurarse de ello.",
+hp:"COA ayuda a los propietarios de condominios de Florida a entender presupuestos confusos, obtener los registros oficiales que la ley les garantiza y actuar cuando la asociación no responde — paso a paso, con cada plazo supervisado.",
+cta1:"Analizar mi presupuesto — gratis",cta2:"Tengo un problema con mi asociación",
+s1:"presuntas violaciones reportadas por residentes de condominios de Florida al Estado en un año",
+s2:"se refieren al acceso a los registros oficiales de la asociación — la categoría más grande",
+s3:"involucran la gestión financiera de la asociación",
+s4:"plazo legal de la asociación para responder una solicitud escrita de registros",s4d:"días",
+src:"Fuente: Florida DBPR, División de Condominios — Informe Anual FY 2023-24 · s. 718.111(12), Florida Statutes",
+f_h:"Tres cosas que hacemos por usted",
+f_l:"Todo lo que COA genera es algo a lo que la ley ya le da derecho. Lo hacemos correcto, formal, documentado — y seguimos lo que pasa después.",
+f1n:"REVISIÓN DE PRESUPUESTO",f1t:"Entienda su presupuesto antes de aceptarlo",
+f1p:"Suba el presupuesto que le envió su asociación. Verificamos las cuentas línea por línea, lo traducimos a lenguaje claro, señalamos lo que merece atención y le entregamos las preguntas exactas para la reunión.",
+f2n:"REGISTROS OFICIALES",f2t:"Obtenga los documentos que la ley le garantiza",
+f2p:"Actas, estados financieros, el estudio de reservas, el contrato de administración. Generamos la solicitud formal escrita, la enviamos de forma rastreable y contamos el plazo legal de 10 días hábiles por usted.",
+f3n:"ESCALAMIENTO",f3t:"Actúe cuando no responden",
+f3p:"Si el plazo vence en silencio, la ley presume que usted fue perjudicado. Preparamos la notificación final y, si es necesario, el paquete completo de queja estatal — con cada fecha y documento adjunto.",
+hw_h:"Cómo funciona",hw_l:"Un caso, un camino, un resultado. Usted decide solo tres veces — todo lo demás está resuelto.",
+st1:"Cuéntenos qué está pasando",st1s:"Elija entre las situaciones comunes o descríbala con sus propias palabras, en cualquier idioma — la dirigimos al camino correcto.",
+st2:"Generamos el documento correcto",st2s:"Formal, en inglés, citando el estatuto correcto, con el plazo legal incluido. Usted revisa y aprueba — nunca escribe una carta legal solo.",
+st3:"Supervisamos el plazo",st3s:"Recibe como máximo tres notificaciones: respondieron, faltan dos días, o plazo vencido. Sin ruido.",
+st4:"Si lo ignoran, escalamos juntos",st4s:"Notificación final, paquete de queja estatal o intervención directa de COA con la administradora — con su expediente completo documentado.",
+lw_h:"La ley es específica — y está de su lado",
+lw_l:"La Ley de Condominios de Florida da a cada propietario el derecho de inspeccionar los registros oficiales dentro de 10 días hábiles tras una solicitud escrita.",
+lw_q:'"La falta de entrega de los registros dentro de 10 días hábiles tras recibir una solicitud escrita crea una presunción refutable de incumplimiento deliberado… daños mínimos de $50 por día calendario (hasta 10 días)." — Sección 718.111(12), Florida Statutes (resumen)',
+c2h:"Empiece con el documento que tiene en las manos",
+c2l:"¿Recibió el presupuesto de este año? Súbalo ahora y léalo como debió haber sido escrito para usted.",
+c2b:"Abrir COA — gratis",
+ft1:"COA ofrece preparación de documentos, educación y seguimiento de casos para propietarios de condominios. COA no es un bufete de abogados y no ofrece asesoría legal. Los análisis de presupuesto son automatizados, pueden contener errores y no sustituyen a un contador o abogado. Las estadísticas provienen del Informe Anual FY 2023-24 del DBPR/CTMH de Florida."}};
+const EN={};document.querySelectorAll('[data-i18n]').forEach(el=>{EN[el.getAttribute('data-i18n')]=el.textContent;});
+function setLang(l){document.getElementById('len').classList.toggle('on',l==='en');document.getElementById('les').classList.toggle('on',l==='es');
+document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');el.textContent=(l==='es'&&I.es[k])?I.es[k]:EN[k];});}
+</script>
+</body>
+</html>
