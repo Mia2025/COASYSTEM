@@ -385,6 +385,33 @@ async function lookupBuilding(){
   load.classList.add('hide');
 }
 
+/* Autocomplete de condomínio nos campos de nome das cartas: digitou 3+ letras,
+   sugere prédios do registro DBPR; ao escolher, preenche também o endereço. */
+function attachCondoAutocomplete(nameId,addrId){
+  const inp=document.getElementById(nameId);
+  const dl=document.createElement('datalist');dl.id=nameId+'_dl';document.body.appendChild(dl);
+  inp.setAttribute('list',dl.id);
+  let timer=null,found={};
+  inp.addEventListener('input',()=>{
+    const v=inp.value;
+    if(found[v]!==undefined){document.getElementById(addrId).value=found[v];return;} // escolheu uma sugestão
+    const q=v.trim().replace(/[^\w\sÀ-ÿ'-]/g,' ').replace(/\s+/g,' ').trim();
+    if(q.length<3)return;
+    clearTimeout(timer);
+    timer=setTimeout(async()=>{
+      try{
+        const pat='*'+q.split(' ').join('*')+'*';
+        const r=await fetch(SB_URL+'/rest/v1/associations?select=name,address&name=ilike.'+encodeURIComponent(pat)+'&order=name&limit=8',{headers:SB_HEADERS});
+        if(!r.ok)return;
+        found={};dl.innerHTML='';
+        (await r.json()).forEach(b=>{found[b.name]=b.address||'';const o=document.createElement('option');o.value=b.name;dl.appendChild(o);});
+      }catch(e){}
+    },250);
+  });
+}
+attachCondoAutocomplete('ra','re');  // carta de registros
+attachCondoAutocomplete('ca','ce');  // carta do contrato de administração
+
 /* ===== AI transport: /api/analyze (produção e dev server usam o mesmo caminho) ===== */
 async function callAI(content){
   const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content})});
