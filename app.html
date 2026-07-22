@@ -28,10 +28,15 @@ textarea{min-height:110px}
 .disc{font-size:11px;color:#620709;background:#f7ecec;border-radius:8px;padding:10px;margin-top:14px}
 .hide{display:none}.spin{color:#5b6b7a;font-size:14px}
 .route{background:#e8e5df;border-radius:10px;padding:16px;margin-top:12px;font-size:14px}
-.suggbox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e8e5df;border-radius:0 0 10px 10px;box-shadow:0 10px 24px rgba(0,0,0,.10);max-height:240px;overflow-y:auto;z-index:50;display:none}
+.suggbox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e8e5df;border-radius:0 0 10px 10px;box-shadow:0 10px 24px rgba(0,0,0,.10);max-height:280px;overflow-y:auto;z-index:50;display:none}
 .suggbox div{padding:10px 12px;cursor:pointer;font-size:14px}
 .suggbox div:hover{background:#f3f3ee}
 .suggbox div span{display:block;font-size:11px;color:#5b6b7a}
+/* barrinha de rolagem sempre visível dentro da lista (o macOS esconde por padrão) */
+.suggbox::-webkit-scrollbar{width:11px}
+.suggbox::-webkit-scrollbar-thumb{background:#b9b2a6;border-radius:6px;border:2px solid #fff}
+.suggbox::-webkit-scrollbar-track{background:#f3f3ee}
+.hint{font-size:11px;color:#8a97a3;margin:4px 0 0}
 </style>
 </head>
 <body>
@@ -114,6 +119,7 @@ textarea{min-height:110px}
     <label data-i18n="c_f2">Your unit number</label><input id="cu">
     <label data-i18n="c_f3">Association legal name (e.g. "Oceanview Condominium Association, Inc.")</label><input id="ca">
     <label data-i18n="c_f4">Association / building address</label><input id="ce">
+    <p class="hint" data-i18n="addr_note">Suggested address comes from the State registry (DBPR) — please double-check and correct it if needed.</p>
     <br><br><button class="primary" onclick="makeLetter()" data-i18n="c_btn">Generate letter</button>
   </div>
   <div id="cres" class="hide">
@@ -133,6 +139,7 @@ textarea{min-height:110px}
     <label data-i18n="c_f2">Your unit number</label><input id="ru">
     <label data-i18n="c_f3">Association legal name</label><input id="ra">
     <label data-i18n="c_f4">Association / building address</label><input id="re">
+    <p class="hint" data-i18n="addr_note">Suggested address comes from the State registry (DBPR) — please double-check and correct it if needed.</p>
     <label data-i18n="r_f5">Which records do you need? (check all that apply)</label>
     <div id="reclist"></div>
     <br><button class="primary" onclick="makeRecordsLetter()" data-i18n="c_btn">Generate letter</button>
@@ -174,6 +181,7 @@ disclaimer:"This is an automated analysis and may contain errors. It is not a su
 b_next:"Request the management contract",b_nexts:"Several findings usually depend on this document — request it now",
 c_h:"Official records request — management contract",c_f1:"Your full name",c_f2:"Your unit number",c_f3:'Association legal name (e.g. "Oceanview Condominium Association, Inc.")',c_f4:"Association / building address",
 c_btn:"Generate letter",c_tag:"LETTER READY — send by email with read receipt or certified mail",c_copy:"Copy letter",
+addr_note:"Suggested address comes from the State registry (DBPR) — please double-check and correct it if needed.",
 c_note:"Keep your proof of delivery. The association has 10 business days to respond (s. 718.111(12), Florida Statutes). If they do not respond, the law presumes you were damaged — minimum $50 per day. COA tracks this deadline for you.",
 r_h:"Official records request",r_f5:"Which records do you need? (check all that apply)",
 copied:"Letter copied to clipboard.",need_pdf:"Please attach the budget PDF.",need_desc:"Please describe your situation first.",
@@ -212,6 +220,7 @@ disclaimer:"Este es un análisis automatizado y puede contener errores. No susti
 b_next:"Solicitar el contrato de la administradora",b_nexts:"Varios hallazgos suelen depender de este documento — solicítelo ahora",
 c_h:"Solicitud de registros oficiales — contrato de administración",c_f1:"Su nombre completo",c_f2:"Su número de unidad",c_f3:'Nombre legal de la asociación (ej. "Oceanview Condominium Association, Inc.")',c_f4:"Dirección de la asociación / edificio",
 c_btn:"Generar carta",c_tag:"CARTA LISTA — envíela por correo electrónico con acuse de recibo o correo certificado",c_copy:"Copiar carta",
+addr_note:"La dirección sugerida viene del registro estatal (DBPR) — verifíquela y corríjala si es necesario.",
 c_note:"Guarde su comprobante de entrega. La asociación tiene 10 días hábiles para responder (s. 718.111(12), Florida Statutes). Si no responde, la ley presume daños — mínimo $50 por día. COA supervisa este plazo por usted.",
 r_h:"Solicitud de registros oficiales",r_f5:"¿Qué registros necesita? (marque todos los que apliquen)",
 copied:"Carta copiada al portapapeles.",need_pdf:"Adjunte el PDF del presupuesto.",need_desc:"Primero describa su situación.",
@@ -403,6 +412,8 @@ function attachSugg(fieldId,searchCol,nameId,addrId){
   inp.setAttribute('autocomplete','off');
   let timer=null,seq=0;
   const hide=()=>{box.style.display='none';};
+  // clicar/arrastar a barrinha de rolagem NÃO pode tirar o foco do campo (senão a lista fecha)
+  box.addEventListener('mousedown',e=>e.preventDefault());
   inp.addEventListener('blur',()=>setTimeout(hide,200));
   inp.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
   inp.addEventListener('input',()=>{
