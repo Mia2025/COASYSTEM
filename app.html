@@ -42,6 +42,21 @@ textarea{min-height:110px}
   <button class="btn" onclick="go('triage')"><b data-i18n="d1t">I have a problem with my condo association</b><span data-i18n="d1s">Records, finances, elections, voting/proxy, meetings, maintenance — or describe it in your own words</span></button>
   <button class="btn" onclick="go('budget')"><b data-i18n="d2t">I received my condo budget and have questions — upload it here</b><span data-i18n="d2s">We explain it in plain language, check the math line by line, and show you what to ask</span></button>
   <button class="btn" onclick="go('contract')"><b data-i18n="d3t">Request the contract between the association and the management company</b><span data-i18n="d3s">We generate the formal letter — it is your legal right (response due in 10 business days)</span></button>
+  <button class="btn" onclick="go('lookup')"><b data-i18n="d4t">Look up your building in the State registry</b><span data-i18n="d4s">All 27,951 Florida condominiums registered with the DBPR — units, status, management company</span></button>
+</div>
+
+<!-- BUSCA DE PRÉDIO (dados DBPR no Supabase) -->
+<div id="lookup" class="hide">
+  <button class="back" onclick="go('home')" data-i18n="back">← Back</button>
+  <h2 data-i18n="l_h">Find your building</h2>
+  <div class="card">
+    <label data-i18n="l_f1">Building or association name — you can also type the street name</label>
+    <input id="lq" onkeydown="if(event.key==='Enter')lookupBuilding()">
+    <br><br><button class="primary" onclick="lookupBuilding()" data-i18n="l_btn">Search</button>
+    <p id="lload" class="spin hide" data-i18n="l_searching">Searching the State registry…</p>
+  </div>
+  <p id="lcount" class="sub hide"></p>
+  <div id="lres"></div>
 </div>
 
 <!-- TRIAGE -->
@@ -134,6 +149,11 @@ en:{tagline:"Helping Florida condo owners get answers, documents, and results.",
 d1t:"I have a problem with my condo association",d1s:"Records, finances, elections, voting/proxy, meetings, maintenance — or describe it in your own words",
 d2t:"I received my condo budget and have questions — upload it here",d2s:"We explain it in plain language, check the math line by line, and show you what to ask",
 d3t:"Request the contract between the association and the management company",d3s:"We generate the formal letter — it is your legal right (response due in 10 business days)",
+d4t:"Look up your building in the State registry",d4s:"All 27,951 Florida condominiums registered with the DBPR — units, status, management company",
+l_h:"Find your building",l_f1:"Building or association name — you can also type the street name",l_btn:"Search",l_searching:"Searching the State registry…",
+l_short:"Please type at least 3 letters.",l_count:"{n} buildings found (showing up to 20 — refine the name to narrow down)",l_none:"No building found with that name. Try fewer words, or the street name.",
+l_err:"The registry could not be reached right now. Please try again in a minute.",
+l_units:"units",l_status:"State status",l_reg:"registered in",l_mgr:"Managed by",l_sirs:"SIRS (structural reserve study) on file with the State",l_req:"Request records from this association",
 back:"← Back",triage_h:"What is happening?",
 q1:"I requested documents from my association and never received them",q1s:"Meeting minutes, financial records, contracts, insurance policies, reserve study",
 q2:"I want to request association documents (first time)",q2s:"We generate the formal request with the legal deadline built in",
@@ -167,6 +187,11 @@ es:{tagline:"Ayudamos a los propietarios de condominios de Florida a obtener res
 d1t:"Tengo un problema con la asociación de mi condominio",d1s:"Documentos, finanzas, elecciones, votación/proxy, reuniones, mantenimiento — o descríbalo con sus propias palabras",
 d2t:"Recibí el presupuesto de mi condominio y tengo preguntas — súbalo aquí",d2s:"Se lo explicamos en lenguaje claro, verificamos las cuentas línea por línea y le mostramos qué preguntar",
 d3t:"Solicitar el contrato entre la asociación y la administradora",d3s:"Generamos la carta formal — es su derecho legal (respuesta en 10 días hábiles)",
+d4t:"Busque su edificio en el registro estatal",d4s:"Los 27,951 condominios de Florida registrados en el DBPR — unidades, estatus, administradora",
+l_h:"Encuentre su edificio",l_f1:"Nombre del edificio o de la asociación — también puede escribir el nombre de la calle",l_btn:"Buscar",l_searching:"Buscando en el registro estatal…",
+l_short:"Escriba al menos 3 letras.",l_count:"{n} edificios encontrados (mostrando hasta 20 — afine el nombre para reducir)",l_none:"No se encontró ningún edificio con ese nombre. Pruebe con menos palabras o con el nombre de la calle.",
+l_err:"No se pudo consultar el registro en este momento. Intente de nuevo en un minuto.",
+l_units:"unidades",l_status:"Estatus estatal",l_reg:"registrado en",l_mgr:"Administrado por",l_sirs:"SIRS (estudio de reservas estructurales) presentado al Estado",l_req:"Solicitar registros a esta asociación",
 back:"← Volver",triage_h:"¿Qué está pasando?",
 q1:"Pedí documentos a mi asociación y nunca los recibí",q1s:"Actas, registros financieros, contratos, pólizas de seguro, estudio de reservas",
 q2:"Quiero solicitar documentos de la asociación (primera vez)",q2s:"Generamos la solicitud formal con el plazo legal incluido",
@@ -203,7 +228,7 @@ document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('d
 function t(k){return I[L][k]||I.en[k]||k;}
 
 /* ===== navigation ===== */
-function go(id){['home','triage','budget','contract','records'].forEach(x=>document.getElementById(x).classList.add('hide'));document.getElementById(id).classList.remove('hide');window.scrollTo(0,0);}
+function go(id){['home','triage','budget','contract','records','lookup'].forEach(x=>document.getElementById(x).classList.add('hide'));document.getElementById(id).classList.remove('hide');window.scrollTo(0,0);}
 
 /* ===== triage: predefined ===== */
 function pick(kind){
@@ -298,6 +323,66 @@ End with exactly this line: "${L==='es'?'⚠️ Este análisis es automatizado y
     document.getElementById('bres').classList.remove('hide');
   }catch(e){document.getElementById('bout').textContent='Error: '+e.message;document.getElementById('bres').classList.remove('hide');}
   document.getElementById('bload').classList.add('hide');document.getElementById('bbtn').disabled=false;
+}
+
+/* ===== busca de prédio — registro público DBPR carregado no Supabase =====
+   A chave abaixo é a "anon public" do Supabase: é feita para ficar no front end.
+   O banco é protegido por Row Level Security (só leitura das tabelas públicas). */
+const SB_URL='https://pfnksoxldrwkwsurilby.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmbmtzb3hsZHJ3a3dzdXJpbGJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MzM5NjEsImV4cCI6MjEwMDMwOTk2MX0.tPv3OtztDF4k5GtsFCBHlVHKcGqtnTK33qVcWTw_mlA';
+const SB_HEADERS={apikey:SB_ANON,Authorization:'Bearer '+SB_ANON};
+
+async function lookupBuilding(){
+  const raw=document.getElementById('lq').value.trim();
+  const q=raw.replace(/[^\w\sÀ-ÿ'-]/g,' ').replace(/\s+/g,' ').trim();  // remove caracteres que quebram o filtro
+  if(q.length<3){alert(t('l_short'));return;}
+  const load=document.getElementById('lload'),res=document.getElementById('lres'),cnt=document.getElementById('lcount');
+  load.classList.remove('hide');res.innerHTML='';cnt.classList.add('hide');
+  try{
+    const pat='*'+q.split(' ').join('*')+'*';
+    const url=SB_URL+'/rest/v1/associations?select=name,address,city,zip,county,unit_count,status,recorded_date,sirs_filed,sirs_filed_period,dbpr_number'
+      +'&or=(name.ilike.'+encodeURIComponent(pat)+',address.ilike.'+encodeURIComponent(pat)+')'
+      +'&order=name&limit=20';
+    const r=await fetch(url,{headers:{...SB_HEADERS,Prefer:'count=exact'}});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const rows=await r.json();
+    const total=(r.headers.get('content-range')||'').split('/')[1]||rows.length;
+    // nome da administradora (tabela managers), em uma segunda consulta
+    let mgr={};
+    const nums=[...new Set(rows.map(x=>x.dbpr_number).filter(Boolean))];
+    if(nums.length){
+      const rm=await fetch(SB_URL+'/rest/v1/managers?select=name,license_number&license_number=in.("'+nums.map(encodeURIComponent).join('","')+'")',{headers:SB_HEADERS});
+      if(rm.ok)(await rm.json()).forEach(m=>{mgr[m.license_number]=m.name;});
+    }
+    cnt.textContent=total>0?t('l_count').replace('{n}',total):t('l_none');
+    cnt.classList.remove('hide');
+    rows.forEach(b=>{
+      const card=document.createElement('div');card.className='card';
+      const h=document.createElement('b');h.textContent=b.name;card.appendChild(h);
+      const p=document.createElement('p');p.style.cssText='margin:6px 0;color:#5b6b7a;font-size:13px';
+      p.textContent=[b.address,b.county?b.county+' County':null].filter(Boolean).join(' — ');card.appendChild(p);
+      const facts=document.createElement('p');facts.style.cssText='margin:6px 0;font-size:14px';
+      const bits=[];
+      if(b.unit_count)bits.push(b.unit_count+' '+t('l_units'));
+      if(b.status)bits.push(t('l_status')+': '+b.status);
+      if(b.recorded_date)bits.push(t('l_reg')+' '+b.recorded_date.slice(0,4));
+      if(mgr[b.dbpr_number])bits.push(t('l_mgr')+': '+mgr[b.dbpr_number]);
+      facts.textContent=bits.join('  ·  ');card.appendChild(facts);
+      if(b.sirs_filed){const s=document.createElement('span');s.className='tag';s.textContent=t('l_sirs');card.appendChild(s);}
+      const act=document.createElement('button');act.className='primary';act.style.marginTop='8px';
+      act.textContent=t('l_req');
+      act.onclick=()=>{
+        go('records');
+        document.getElementById('ra').value=b.name;
+        document.getElementById('re').value=[b.address].filter(Boolean).join(', ');
+      };
+      card.appendChild(document.createElement('br'));card.appendChild(act);
+      res.appendChild(card);
+    });
+  }catch(e){
+    cnt.textContent=t('l_err');cnt.classList.remove('hide');
+  }
+  load.classList.add('hide');
 }
 
 /* ===== AI transport: /api/analyze (produção e dev server usam o mesmo caminho) ===== */
