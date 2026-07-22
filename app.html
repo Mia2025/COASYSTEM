@@ -389,16 +389,19 @@ async function lookupBuilding(){
   load.classList.add('hide');
 }
 
-/* Autocomplete de condomínio nos campos de nome das cartas: digitou 3+ letras,
-   sugere prédios do registro DBPR; ao escolher, preenche também o endereço.
-   Lista própria (div) em vez do datalist nativo — o do Safari não deixa clicar/rolar. */
-function attachCondoAutocomplete(nameId,addrId){
-  const inp=document.getElementById(nameId);
+/* Autocomplete de condomínio nas cartas: funciona no campo do NOME e também no
+   campo do ENDEREÇO (busca por rua). Escolher uma sugestão preenche os dois campos.
+   Lista própria (div) em vez do datalist nativo — o do Safari não deixa clicar/rolar.
+   Atenção: o registro DBPR tem muitos nomes repetidos em cidades diferentes
+   ("ATRIUM" existe em Tallahassee, Boca Raton, Sanibel...) — por isso cada
+   sugestão mostra o endereço embaixo do nome, para escolher o prédio certo. */
+function attachSugg(fieldId,searchCol,nameId,addrId){
+  const inp=document.getElementById(fieldId);
   const wrap=document.createElement('div');wrap.style.position='relative';
   inp.parentNode.insertBefore(wrap,inp);wrap.appendChild(inp);
   const box=document.createElement('div');box.className='suggbox';wrap.appendChild(box);
   inp.setAttribute('autocomplete','off');
-  let timer=null;
+  let timer=null,seq=0;
   const hide=()=>{box.style.display='none';};
   inp.addEventListener('blur',()=>setTimeout(hide,200));
   inp.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
@@ -407,11 +410,13 @@ function attachCondoAutocomplete(nameId,addrId){
     clearTimeout(timer);
     if(q.length<3){hide();return;}
     timer=setTimeout(async()=>{
+      const my=++seq;
       try{
         const pat='*'+q.split(' ').join('*')+'*';
-        const r=await fetch(SB_URL+'/rest/v1/associations?select=name,address&name=ilike.'+encodeURIComponent(pat)+'&order=name&limit=12',{headers:SB_HEADERS});
+        const r=await fetch(SB_URL+'/rest/v1/associations?select=name,address&'+searchCol+'=ilike.'+encodeURIComponent(pat)+'&order=name&limit=12',{headers:SB_HEADERS});
         if(!r.ok)return;
         const rows=await r.json();
+        if(my!==seq)return;  // resposta atrasada de uma digitação anterior: descarta (a lista não troca embaixo do clique)
         box.innerHTML='';
         if(!rows.length){hide();return;}
         rows.forEach(b=>{
@@ -419,7 +424,12 @@ function attachCondoAutocomplete(nameId,addrId){
           it.textContent=b.name;
           const sm=document.createElement('span');sm.textContent=b.address||'';it.appendChild(sm);
           // mousedown (e não click): dispara antes do blur do campo, senão a lista some antes do clique valer
-          it.addEventListener('mousedown',ev=>{ev.preventDefault();inp.value=b.name;document.getElementById(addrId).value=b.address||'';hide();});
+          it.addEventListener('mousedown',ev=>{
+            ev.preventDefault();
+            document.getElementById(nameId).value=b.name;
+            document.getElementById(addrId).value=b.address||'';
+            hide();
+          });
           box.appendChild(it);
         });
         box.style.display='block';
@@ -427,8 +437,10 @@ function attachCondoAutocomplete(nameId,addrId){
     },250);
   });
 }
-attachCondoAutocomplete('ra','re');  // carta de registros
-attachCondoAutocomplete('ca','ce');  // carta do contrato de administração
+attachSugg('ra','name','ra','re');    // carta de registros — busca pelo nome
+attachSugg('re','address','ra','re'); // carta de registros — busca pelo endereço/rua
+attachSugg('ca','name','ca','ce');    // carta do contrato — busca pelo nome
+attachSugg('ce','address','ca','ce'); // carta do contrato — busca pelo endereço/rua
 
 /* ===== AI transport: /api/analyze (produção e dev server usam o mesmo caminho) ===== */
 async function callAI(content){
