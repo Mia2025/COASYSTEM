@@ -28,6 +28,10 @@ textarea{min-height:110px}
 .disc{font-size:11px;color:#620709;background:#f7ecec;border-radius:8px;padding:10px;margin-top:14px}
 .hide{display:none}.spin{color:#5b6b7a;font-size:14px}
 .route{background:#e8e5df;border-radius:10px;padding:16px;margin-top:12px;font-size:14px}
+.suggbox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e8e5df;border-radius:0 0 10px 10px;box-shadow:0 10px 24px rgba(0,0,0,.10);max-height:240px;overflow-y:auto;z-index:50;display:none}
+.suggbox div{padding:10px 12px;cursor:pointer;font-size:14px}
+.suggbox div:hover{background:#f3f3ee}
+.suggbox div span{display:block;font-size:11px;color:#5b6b7a}
 </style>
 </head>
 <body>
@@ -386,25 +390,39 @@ async function lookupBuilding(){
 }
 
 /* Autocomplete de condomínio nos campos de nome das cartas: digitou 3+ letras,
-   sugere prédios do registro DBPR; ao escolher, preenche também o endereço. */
+   sugere prédios do registro DBPR; ao escolher, preenche também o endereço.
+   Lista própria (div) em vez do datalist nativo — o do Safari não deixa clicar/rolar. */
 function attachCondoAutocomplete(nameId,addrId){
   const inp=document.getElementById(nameId);
-  const dl=document.createElement('datalist');dl.id=nameId+'_dl';document.body.appendChild(dl);
-  inp.setAttribute('list',dl.id);
-  let timer=null,found={};
+  const wrap=document.createElement('div');wrap.style.position='relative';
+  inp.parentNode.insertBefore(wrap,inp);wrap.appendChild(inp);
+  const box=document.createElement('div');box.className='suggbox';wrap.appendChild(box);
+  inp.setAttribute('autocomplete','off');
+  let timer=null;
+  const hide=()=>{box.style.display='none';};
+  inp.addEventListener('blur',()=>setTimeout(hide,200));
+  inp.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
   inp.addEventListener('input',()=>{
-    const v=inp.value;
-    if(found[v]!==undefined){document.getElementById(addrId).value=found[v];return;} // escolheu uma sugestão
-    const q=v.trim().replace(/[^\w\sÀ-ÿ'-]/g,' ').replace(/\s+/g,' ').trim();
-    if(q.length<3)return;
+    const q=inp.value.trim().replace(/[^\w\sÀ-ÿ'-]/g,' ').replace(/\s+/g,' ').trim();
     clearTimeout(timer);
+    if(q.length<3){hide();return;}
     timer=setTimeout(async()=>{
       try{
         const pat='*'+q.split(' ').join('*')+'*';
-        const r=await fetch(SB_URL+'/rest/v1/associations?select=name,address&name=ilike.'+encodeURIComponent(pat)+'&order=name&limit=8',{headers:SB_HEADERS});
+        const r=await fetch(SB_URL+'/rest/v1/associations?select=name,address&name=ilike.'+encodeURIComponent(pat)+'&order=name&limit=12',{headers:SB_HEADERS});
         if(!r.ok)return;
-        found={};dl.innerHTML='';
-        (await r.json()).forEach(b=>{found[b.name]=b.address||'';const o=document.createElement('option');o.value=b.name;dl.appendChild(o);});
+        const rows=await r.json();
+        box.innerHTML='';
+        if(!rows.length){hide();return;}
+        rows.forEach(b=>{
+          const it=document.createElement('div');
+          it.textContent=b.name;
+          const sm=document.createElement('span');sm.textContent=b.address||'';it.appendChild(sm);
+          // mousedown (e não click): dispara antes do blur do campo, senão a lista some antes do clique valer
+          it.addEventListener('mousedown',ev=>{ev.preventDefault();inp.value=b.name;document.getElementById(addrId).value=b.address||'';hide();});
+          box.appendChild(it);
+        });
+        box.style.display='block';
       }catch(e){}
     },250);
   });
