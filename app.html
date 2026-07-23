@@ -122,8 +122,10 @@ input::-webkit-credentials-auto-fill-button{display:none!important;visibility:hi
     <label data-i18n="c_f1">Your full name</label><input id="cn">
     <label data-i18n="c_f2">Your unit number</label><input id="cu">
     <label data-i18n="c_f3">Association legal name (e.g. "Oceanview Condominium Association, Inc.")</label><input id="ca">
-    <label data-i18n="c_f4">Association / building address</label><input id="ce">
+    <label data-i18n="c_f4">Association mailing address</label><input id="ce">
     <p class="hint" data-i18n="addr_note">This is the association's mailing address on file with the State — where official correspondence is received.</p>
+    <label data-i18n="c_f4b">On-site office address (optional — if your building has a management office)</label><input id="cb">
+    <p class="hint" data-i18n="addr_note2">If you fill this in, the letter is also addressed for hand delivery at the building's office — extra proof of delivery.</p>
     <br><br><button class="primary" onclick="makeLetter()" data-i18n="c_btn">Generate letter</button>
   </div>
   <div id="cres" class="hide">
@@ -142,8 +144,10 @@ input::-webkit-credentials-auto-fill-button{display:none!important;visibility:hi
     <label data-i18n="c_f1">Your full name</label><input id="rn">
     <label data-i18n="c_f2">Your unit number</label><input id="ru">
     <label data-i18n="c_f3">Association legal name</label><input id="ra">
-    <label data-i18n="c_f4">Association / building address</label><input id="re">
+    <label data-i18n="c_f4">Association mailing address</label><input id="re">
     <p class="hint" data-i18n="addr_note">This is the association's mailing address on file with the State — where official correspondence is received.</p>
+    <label data-i18n="c_f4b">On-site office address (optional — if your building has a management office)</label><input id="rb">
+    <p class="hint" data-i18n="addr_note2">If you fill this in, the letter is also addressed for hand delivery at the building's office — extra proof of delivery.</p>
     <label data-i18n="r_f5">Which records do you need? (check all that apply)</label>
     <div id="reclist"></div>
     <br><button class="primary" onclick="makeRecordsLetter()" data-i18n="c_btn">Generate letter</button>
@@ -183,7 +187,9 @@ b_f2:"Optional: management contract PDF — enables budget-versus-contract cross
 b_btn:"Analyze my budget",b_load:"Reading your document line by line… this takes up to a minute.",b_tag:"YOUR REPORT",
 disclaimer:"This is an automated analysis and may contain errors. It is not a substitute for an accountant or attorney. It is based solely on the document you provided.",
 b_next:"Request the management contract",b_nexts:"Several findings usually depend on this document — request it now",
-c_h:"Official records request — management contract",c_f1:"Your full name",c_f2:"Your unit number",c_f3:'Association legal name (e.g. "Oceanview Condominium Association, Inc.")',c_f4:"Association / building address",
+c_h:"Official records request — management contract",c_f1:"Your full name",c_f2:"Your unit number",c_f3:'Association legal name (e.g. "Oceanview Condominium Association, Inc.")',c_f4:"Association mailing address",
+c_f4b:"On-site office address (optional — if your building has a management office)",
+addr_note2:"If you fill this in, the letter is also addressed for hand delivery at the building's office — extra proof of delivery.",
 c_btn:"Generate letter",c_tag:"LETTER READY — send by email with read receipt or certified mail",c_copy:"Copy letter",
 addr_note:"This is the association's mailing address on file with the State — where official correspondence is received.",
 c_note:"Keep your proof of delivery. The association has 10 business days to respond (s. 718.111(12), Florida Statutes). If they do not respond, the law presumes you were damaged — minimum $50 per day. COA tracks this deadline for you.",
@@ -222,7 +228,9 @@ b_f2:"Opcional: PDF del contrato de la administradora — permite el cruce presu
 b_btn:"Analizar mi presupuesto",b_load:"Leyendo su documento línea por línea… puede tardar hasta un minuto.",b_tag:"SU INFORME",
 disclaimer:"Este es un análisis automatizado y puede contener errores. No sustituye a un contador o abogado. Se basa únicamente en el documento que usted proporcionó.",
 b_next:"Solicitar el contrato de la administradora",b_nexts:"Varios hallazgos suelen depender de este documento — solicítelo ahora",
-c_h:"Solicitud de registros oficiales — contrato de administración",c_f1:"Su nombre completo",c_f2:"Su número de unidad",c_f3:'Nombre legal de la asociación (ej. "Oceanview Condominium Association, Inc.")',c_f4:"Dirección de la asociación / edificio",
+c_h:"Solicitud de registros oficiales — contrato de administración",c_f1:"Su nombre completo",c_f2:"Su número de unidad",c_f3:'Nombre legal de la asociación (ej. "Oceanview Condominium Association, Inc.")',c_f4:"Dirección postal de la asociación",
+c_f4b:"Dirección de la oficina en el edificio (opcional — si su edificio tiene oficina de administración)",
+addr_note2:"Si la completa, la carta también queda dirigida para entrega en mano en la oficina del edificio — prueba de entrega adicional.",
 c_btn:"Generar carta",c_tag:"CARTA LISTA — envíela por correo electrónico con acuse de recibo o correo certificado",c_copy:"Copiar carta",
 addr_note:"Esta es la dirección postal de la asociación registrada ante el Estado — donde se recibe la correspondencia oficial.",
 c_note:"Guarde su comprobante de entrega. La asociación tiene 10 días hábiles para responder (s. 718.111(12), Florida Statutes). Si no responde, la ley presume daños — mínimo $50 por día. COA supervisa este plazo por usted.",
@@ -443,7 +451,7 @@ function attachSugg(fieldId,searchCol,nameId,addrId){
           const it=document.createElement('div');
           it.textContent=b.name;
           const sm=document.createElement('span');
-          sm.textContent=b.address||cidade;
+          sm.textContent=cidade||b.address;  // na lista: cidade do prédio (o endereço postal entra no campo ao escolher)
           it.appendChild(sm);
           // mousedown (e não click): dispara antes do blur do campo, senão a lista some antes do clique valer
           it.addEventListener('mousedown',ev=>{
@@ -488,25 +496,26 @@ rec_contracts:"All current contracts for services to the Association, including 
 rec_mgmt:"The current management services agreement, including all exhibits, addenda, fee schedules and payroll markup schedules",
 rec_election:"All ballots, sign-in sheets, voting proxies and election materials from the most recent election or membership vote"};
 function buildRecList(){const d=document.getElementById('reclist');d.innerHTML='';RECS.forEach(k=>{d.innerHTML+=`<label style="display:flex;gap:8px;align-items:flex-start;font-size:14px;color:#1c2733;margin:6px 0"><input type="checkbox" value="${k}" style="width:auto;margin-top:3px">${t(k)}</label>`;});}
-function letterHead(name,unit,assoc,addr){
+function letterHead(name,unit,assoc,addr,addr2){
   const d=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  return `${d}\n\nTO: Board of Directors / Management\n${assoc}\n${addr}\n\nRE: OFFICIAL RECORDS INSPECTION REQUEST — Section 718.111(12), Florida Statutes\n\nDear Board of Directors,\n\nI, ${name}, owner of unit ${unit}, hereby submit this written request to inspect and obtain copies of the following official records of the Association, pursuant to Section 718.111(12), Florida Statutes:\n\n`;
+  const onsite=addr2?`Also delivered to the on-site management office at: ${addr2}\n`:'';
+  return `${d}\n\nTO: Board of Directors / Management\n${assoc}\n${addr}\n${onsite}\nRE: OFFICIAL RECORDS INSPECTION REQUEST — Section 718.111(12), Florida Statutes\n\nDear Board of Directors,\n\nI, ${name}, owner of unit ${unit}, hereby submit this written request to inspect and obtain copies of the following official records of the Association, pursuant to Section 718.111(12), Florida Statutes:\n\n`;
 }
 function letterFoot(name,unit){
   return `\nAs provided by law, these records must be made available for inspection within ten (10) working days of receipt of this request. Failure to comply creates a rebuttable presumption that the Association willfully failed to comply, with minimum damages of $50 per calendar day (up to 10 days).\n\nPursuant to Section 718.111(12)(c), Florida Statutes, please provide, simultaneously with your response, the written checklist of all records made available for inspection and copying, identifying any requested records that were not made available.\n\nPlease contact me to schedule the inspection or to provide copies (I agree to pay reasonable copying costs as permitted by statute).\n\nSincerely,\n\n${name}\nUnit ${unit}\nSent via trackable delivery — please confirm receipt.`;
 }
 function makeLetter(){
-  const n=document.getElementById('cn').value||'[NAME]',u=document.getElementById('cu').value||'[UNIT]',a=document.getElementById('ca').value||'[ASSOCIATION]',e=document.getElementById('ce').value||'[ADDRESS]';
+  const n=document.getElementById('cn').value||'[NAME]',u=document.getElementById('cu').value||'[UNIT]',a=document.getElementById('ca').value||'[ASSOCIATION]',e=document.getElementById('ce').value||'[ADDRESS]',b=document.getElementById('cb').value.trim();
   const items=`1. The current management services agreement between the Association and its management company, including all exhibits, addenda and amendments;\n2. The current schedule of fees, cost reimbursements and payroll markup percentages charged by the management company;\n3. Any disclosure of affiliated vendors pursuant to Section 718.3025(1)(f), Florida Statutes.\n`;
-  document.getElementById('cout').textContent=letterHead(n,u,a,e)+items+letterFoot(n,u);
+  document.getElementById('cout').textContent=letterHead(n,u,a,e,b)+items+letterFoot(n,u);
   document.getElementById('cres').classList.remove('hide');
 }
 function makeRecordsLetter(){
-  const n=document.getElementById('rn').value||'[NAME]',u=document.getElementById('ru').value||'[UNIT]',a=document.getElementById('ra').value||'[ASSOCIATION]',e=document.getElementById('re').value||'[ADDRESS]';
+  const n=document.getElementById('rn').value||'[NAME]',u=document.getElementById('ru').value||'[UNIT]',a=document.getElementById('ra').value||'[ASSOCIATION]',e=document.getElementById('re').value||'[ADDRESS]',b=document.getElementById('rb').value.trim();
   const checked=[...document.querySelectorAll('#reclist input:checked')].map(c=>REC_EN[c.value]);
   if(checked.length===0){checked.push(REC_EN.rec_minutes);}
   const items=checked.map((x,i)=>`${i+1}. ${x};`).join('\n')+'\n';
-  document.getElementById('rout').textContent=letterHead(n,u,a,e)+items+letterFoot(n,u);
+  document.getElementById('rout').textContent=letterHead(n,u,a,e,b)+items+letterFoot(n,u);
   document.getElementById('rres').classList.remove('hide');
 }
 function copyLetter(){navigator.clipboard.writeText(document.getElementById('cout').textContent);alert(t('copied'));}
