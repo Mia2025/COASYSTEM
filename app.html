@@ -37,6 +37,10 @@ textarea{min-height:110px}
 .suggbox::-webkit-scrollbar-thumb{background:#b9b2a6;border-radius:6px;border:2px solid #fff}
 .suggbox::-webkit-scrollbar-track{background:#f3f3ee}
 .hint{font-size:11px;color:#8a97a3;margin:4px 0 0}
+/* esconde o botão de autofill de contatos do Safari (a "bolinha com carinha") —
+   ele não é nosso, não faz nada útil aqui e confunde com o abre-lista */
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button{display:none!important;visibility:hidden;pointer-events:none;position:absolute;right:0}
 </style>
 </head>
 <body>
@@ -119,7 +123,7 @@ textarea{min-height:110px}
     <label data-i18n="c_f2">Your unit number</label><input id="cu">
     <label data-i18n="c_f3">Association legal name (e.g. "Oceanview Condominium Association, Inc.")</label><input id="ca">
     <label data-i18n="c_f4">Association / building address</label><input id="ce">
-    <p class="hint" data-i18n="addr_note">Suggested address comes from the State registry (DBPR) — please double-check and correct it if needed.</p>
+    <p class="hint" data-i18n="addr_note">Type your building's street and number in front of the city — you know your building's address better than any registry.</p>
     <br><br><button class="primary" onclick="makeLetter()" data-i18n="c_btn">Generate letter</button>
   </div>
   <div id="cres" class="hide">
@@ -139,7 +143,7 @@ textarea{min-height:110px}
     <label data-i18n="c_f2">Your unit number</label><input id="ru">
     <label data-i18n="c_f3">Association legal name</label><input id="ra">
     <label data-i18n="c_f4">Association / building address</label><input id="re">
-    <p class="hint" data-i18n="addr_note">Suggested address comes from the State registry (DBPR) — please double-check and correct it if needed.</p>
+    <p class="hint" data-i18n="addr_note">Type your building's street and number in front of the city — you know your building's address better than any registry.</p>
     <label data-i18n="r_f5">Which records do you need? (check all that apply)</label>
     <div id="reclist"></div>
     <br><button class="primary" onclick="makeRecordsLetter()" data-i18n="c_btn">Generate letter</button>
@@ -181,7 +185,7 @@ disclaimer:"This is an automated analysis and may contain errors. It is not a su
 b_next:"Request the management contract",b_nexts:"Several findings usually depend on this document — request it now",
 c_h:"Official records request — management contract",c_f1:"Your full name",c_f2:"Your unit number",c_f3:'Association legal name (e.g. "Oceanview Condominium Association, Inc.")',c_f4:"Association / building address",
 c_btn:"Generate letter",c_tag:"LETTER READY — send by email with read receipt or certified mail",c_copy:"Copy letter",
-addr_note:"Suggested address comes from the State registry (DBPR) — please double-check and correct it if needed.",
+addr_note:"Type your building's street and number in front of the city — you know your building's address better than any registry.",
 c_note:"Keep your proof of delivery. The association has 10 business days to respond (s. 718.111(12), Florida Statutes). If they do not respond, the law presumes you were damaged — minimum $50 per day. COA tracks this deadline for you.",
 r_h:"Official records request",r_f5:"Which records do you need? (check all that apply)",
 copied:"Letter copied to clipboard.",need_pdf:"Please attach the budget PDF.",need_desc:"Please describe your situation first.",
@@ -220,7 +224,7 @@ disclaimer:"Este es un análisis automatizado y puede contener errores. No susti
 b_next:"Solicitar el contrato de la administradora",b_nexts:"Varios hallazgos suelen depender de este documento — solicítelo ahora",
 c_h:"Solicitud de registros oficiales — contrato de administración",c_f1:"Su nombre completo",c_f2:"Su número de unidad",c_f3:'Nombre legal de la asociación (ej. "Oceanview Condominium Association, Inc.")',c_f4:"Dirección de la asociación / edificio",
 c_btn:"Generar carta",c_tag:"CARTA LISTA — envíela por correo electrónico con acuse de recibo o correo certificado",c_copy:"Copiar carta",
-addr_note:"La dirección sugerida viene del registro estatal (DBPR) — verifíquela y corríjala si es necesario.",
+addr_note:"Escriba la calle y el número de su edificio delante de la ciudad — usted conoce la dirección de su edificio mejor que cualquier registro.",
 c_note:"Guarde su comprobante de entrega. La asociación tiene 10 días hábiles para responder (s. 718.111(12), Florida Statutes). Si no responde, la ley presume daños — mínimo $50 por día. COA supervisa este plazo por usted.",
 r_h:"Solicitud de registros oficiales",r_f5:"¿Qué registros necesita? (marque todos los que apliquen)",
 copied:"Carta copiada al portapapeles.",need_pdf:"Adjunte el PDF del presupuesto.",need_desc:"Primero describa su situación.",
@@ -387,7 +391,8 @@ async function lookupBuilding(){
       act.onclick=()=>{
         go('records');
         document.getElementById('ra').value=b.name;
-        document.getElementById('re').value=[b.address].filter(Boolean).join(', ');
+        // mesma regra do autocomplete: cidade/CEP (confiáveis); a rua quem põe é o dono
+        document.getElementById('re').value=[b.city,'FL',b.zip].filter(Boolean).join(', ').replace(', FL, ',', FL ');
       };
       card.appendChild(document.createElement('br'));card.appendChild(act);
       res.appendChild(card);
@@ -416,6 +421,8 @@ function attachSugg(fieldId,searchCol,nameId,addrId){
   box.addEventListener('mousedown',e=>e.preventDefault());
   inp.addEventListener('blur',()=>setTimeout(hide,200));
   inp.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
+  // clicar de volta no campo reabre a lista (se já houver 3+ letras digitadas)
+  inp.addEventListener('focus',()=>{if(inp.value.trim().length>=3)inp.dispatchEvent(new Event('input'));});
   inp.addEventListener('input',()=>{
     const q=inp.value.trim().replace(/[^\w\sÀ-ÿ'-]/g,' ').replace(/\s+/g,' ').trim();
     clearTimeout(timer);
@@ -424,21 +431,29 @@ function attachSugg(fieldId,searchCol,nameId,addrId){
       const my=++seq;
       try{
         const pat='*'+q.split(' ').join('*')+'*';
-        const r=await fetch(SB_URL+'/rest/v1/associations?select=name,address&'+searchCol+'=ilike.'+encodeURIComponent(pat)+'&order=name&limit=12',{headers:SB_HEADERS});
+        const r=await fetch(SB_URL+'/rest/v1/associations?select=name,address,city,zip,county&'+searchCol+'=ilike.'+encodeURIComponent(pat)+'&order=name&limit=12',{headers:SB_HEADERS});
         if(!r.ok)return;
         const rows=await r.json();
         if(my!==seq)return;  // resposta atrasada de uma digitação anterior: descarta (a lista não troca embaixo do clique)
         box.innerHTML='';
         if(!rows.length){hide();return;}
         rows.forEach(b=>{
+          // a RUA do registro DBPR é pouco confiável (nº errado/embaralhado em vários prédios);
+          // cidade/CEP/condado são sólidos — é isso que mostramos e preenchemos.
+          const cidade=[b.city,b.county?b.county+' County':null].filter(Boolean).join(' — ');
           const it=document.createElement('div');
           it.textContent=b.name;
-          const sm=document.createElement('span');sm.textContent=b.address||'';it.appendChild(sm);
+          const sm=document.createElement('span');
+          sm.textContent=searchCol==='address'?(b.address||cidade):cidade;  // busca por rua precisa exibir a rua para escolher
+          it.appendChild(sm);
           // mousedown (e não click): dispara antes do blur do campo, senão a lista some antes do clique valer
           it.addEventListener('mousedown',ev=>{
             ev.preventDefault();
             document.getElementById(nameId).value=b.name;
-            document.getElementById(addrId).value=b.address||'';
+            const cz=[b.city,'FL',b.zip].filter(Boolean).join(', ').replace(', FL, ',', FL ');
+            document.getElementById(addrId).value=cz;   // dono completa com a rua e o número do prédio dele
+            document.getElementById(addrId).focus();
+            document.getElementById(addrId).setSelectionRange(0,0);
             hide();
           });
           box.appendChild(it);
@@ -448,10 +463,11 @@ function attachSugg(fieldId,searchCol,nameId,addrId){
     },250);
   });
 }
-attachSugg('ra','name','ra','re');    // carta de registros — busca pelo nome
-attachSugg('re','address','ra','re'); // carta de registros — busca pelo endereço/rua
-attachSugg('ca','name','ca','ce');    // carta do contrato — busca pelo nome
-attachSugg('ce','address','ca','ce'); // carta do contrato — busca pelo endereço/rua
+// Sugestões SÓ no campo do NOME. No campo de endereço não há lista nenhuma:
+// ele é onde o dono digita a rua do prédio dele — lista ali só atrapalha
+// (aparecia prédios vizinhos da mesma cidade ao clicar no campo).
+attachSugg('ra','name','ra','re');    // carta de registros
+attachSugg('ca','name','ca','ce');    // carta do contrato
 
 /* ===== AI transport: /api/analyze (produção e dev server usam o mesmo caminho) ===== */
 async function callAI(content){
