@@ -123,7 +123,7 @@ input::-webkit-credentials-auto-fill-button{display:none!important;visibility:hi
     <label data-i18n="c_f2">Your unit number</label><input id="cu">
     <label data-i18n="c_f3">Association legal name (e.g. "Oceanview Condominium Association, Inc.")</label><input id="ca">
     <label data-i18n="c_f4">Association / building address</label><input id="ce">
-    <p class="hint" data-i18n="addr_note">Type your building's street and number in front of the city — you know your building's address better than any registry.</p>
+    <p class="hint" data-i18n="addr_note">This is the association's mailing address on file with the State — where official correspondence is received.</p>
     <br><br><button class="primary" onclick="makeLetter()" data-i18n="c_btn">Generate letter</button>
   </div>
   <div id="cres" class="hide">
@@ -143,7 +143,7 @@ input::-webkit-credentials-auto-fill-button{display:none!important;visibility:hi
     <label data-i18n="c_f2">Your unit number</label><input id="ru">
     <label data-i18n="c_f3">Association legal name</label><input id="ra">
     <label data-i18n="c_f4">Association / building address</label><input id="re">
-    <p class="hint" data-i18n="addr_note">Type your building's street and number in front of the city — you know your building's address better than any registry.</p>
+    <p class="hint" data-i18n="addr_note">This is the association's mailing address on file with the State — where official correspondence is received.</p>
     <label data-i18n="r_f5">Which records do you need? (check all that apply)</label>
     <div id="reclist"></div>
     <br><button class="primary" onclick="makeRecordsLetter()" data-i18n="c_btn">Generate letter</button>
@@ -185,7 +185,7 @@ disclaimer:"This is an automated analysis and may contain errors. It is not a su
 b_next:"Request the management contract",b_nexts:"Several findings usually depend on this document — request it now",
 c_h:"Official records request — management contract",c_f1:"Your full name",c_f2:"Your unit number",c_f3:'Association legal name (e.g. "Oceanview Condominium Association, Inc.")',c_f4:"Association / building address",
 c_btn:"Generate letter",c_tag:"LETTER READY — send by email with read receipt or certified mail",c_copy:"Copy letter",
-addr_note:"Type your building's street and number in front of the city — you know your building's address better than any registry.",
+addr_note:"This is the association's mailing address on file with the State — where official correspondence is received.",
 c_note:"Keep your proof of delivery. The association has 10 business days to respond (s. 718.111(12), Florida Statutes). If they do not respond, the law presumes you were damaged — minimum $50 per day. COA tracks this deadline for you.",
 r_h:"Official records request",r_f5:"Which records do you need? (check all that apply)",
 copied:"Letter copied to clipboard.",need_pdf:"Please attach the budget PDF.",need_desc:"Please describe your situation first.",
@@ -224,7 +224,7 @@ disclaimer:"Este es un análisis automatizado y puede contener errores. No susti
 b_next:"Solicitar el contrato de la administradora",b_nexts:"Varios hallazgos suelen depender de este documento — solicítelo ahora",
 c_h:"Solicitud de registros oficiales — contrato de administración",c_f1:"Su nombre completo",c_f2:"Su número de unidad",c_f3:'Nombre legal de la asociación (ej. "Oceanview Condominium Association, Inc.")',c_f4:"Dirección de la asociación / edificio",
 c_btn:"Generar carta",c_tag:"CARTA LISTA — envíela por correo electrónico con acuse de recibo o correo certificado",c_copy:"Copiar carta",
-addr_note:"Escriba la calle y el número de su edificio delante de la ciudad — usted conoce la dirección de su edificio mejor que cualquier registro.",
+addr_note:"Esta es la dirección postal de la asociación registrada ante el Estado — donde se recibe la correspondencia oficial.",
 c_note:"Guarde su comprobante de entrega. La asociación tiene 10 días hábiles para responder (s. 718.111(12), Florida Statutes). Si no responde, la ley presume daños — mínimo $50 por día. COA supervisa este plazo por usted.",
 r_h:"Solicitud de registros oficiales",r_f5:"¿Qué registros necesita? (marque todos los que apliquen)",
 copied:"Carta copiada al portapapeles.",need_pdf:"Adjunte el PDF del presupuesto.",need_desc:"Primero describa su situación.",
@@ -391,8 +391,7 @@ async function lookupBuilding(){
       act.onclick=()=>{
         go('records');
         document.getElementById('ra').value=b.name;
-        // mesma regra do autocomplete: cidade/CEP (confiáveis); a rua quem põe é o dono
-        document.getElementById('re').value=[b.city,'FL',b.zip].filter(Boolean).join(', ').replace(', FL, ',', FL ');
+        document.getElementById('re').value=b.address||'';  // endereço de correspondência (DBPR)
       };
       card.appendChild(document.createElement('br'));card.appendChild(act);
       res.appendChild(card);
@@ -438,22 +437,19 @@ function attachSugg(fieldId,searchCol,nameId,addrId){
         box.innerHTML='';
         if(!rows.length){hide();return;}
         rows.forEach(b=>{
-          // a RUA do registro DBPR é pouco confiável (nº errado/embaralhado em vários prédios);
-          // cidade/CEP/condado são sólidos — é isso que mostramos e preenchemos.
+          // b.address é o ENDEREÇO DE CORRESPONDÊNCIA da associação no DBPR
+          // (para onde o estado envia as cobranças — mantido atualizado)
           const cidade=[b.city,b.county?b.county+' County':null].filter(Boolean).join(' — ');
           const it=document.createElement('div');
           it.textContent=b.name;
           const sm=document.createElement('span');
-          sm.textContent=searchCol==='address'?(b.address||cidade):cidade;  // busca por rua precisa exibir a rua para escolher
+          sm.textContent=b.address||cidade;
           it.appendChild(sm);
           // mousedown (e não click): dispara antes do blur do campo, senão a lista some antes do clique valer
           it.addEventListener('mousedown',ev=>{
             ev.preventDefault();
             document.getElementById(nameId).value=b.name;
-            const cz=[b.city,'FL',b.zip].filter(Boolean).join(', ').replace(', FL, ',', FL ');
-            document.getElementById(addrId).value=cz;   // dono completa com a rua e o número do prédio dele
-            document.getElementById(addrId).focus();
-            document.getElementById(addrId).setSelectionRange(0,0);
+            document.getElementById(addrId).value=b.address||'';
             hide();
           });
           box.appendChild(it);
